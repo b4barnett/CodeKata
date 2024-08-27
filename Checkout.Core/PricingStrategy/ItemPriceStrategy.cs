@@ -18,3 +18,11 @@ public class ItemPriceStrategy : IPricingStrategy
 {
     public int GetTotalPrice( IGrouping<string, Item> basket ) => basket.Sum( x => x.Cost );
 }
+
+public class BuyXForYPricingStrategy(int NumberOfItems, int Amount) : IPricingStrategy
+{
+    public int GetTotalPrice( IGrouping<string, Item> basket )
+    {
+        throw new NotImplementedException();
+    }
+}
