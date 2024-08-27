@@ -20,6 +20,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Checkout.Core\Checkout.Core.csproj" />
+    <ProjectReference Include="..\..\Checkout.Entities\Checkout.Entities.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="NUnit.Framework" />
   </ItemGroup>
 
