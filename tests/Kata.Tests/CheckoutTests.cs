@@ -17,8 +17,10 @@ public class Tests
     {
         _itemPrices = SetupItemPrices();
         _pricingStrategies = new Dictionary<string, IPricingStrategy>();
-        _service = new Checkout.Core.Checkout(_itemPrices, _pricingStrategies);
+        _service = new Checkout.Core.Checkout(_itemPrices, _pricingStrategies, new ItemPriceStrategy());
     }
+
+    //TODO: Potentiailly split some of these tests into different files
 
     [TestCase(new string[0], 0, Description = "Empty cart should be zero")]
     [TestCase(new[] { "A" }, 1, Description = "Single item with no pricing rules should return item price")]
@@ -37,7 +39,7 @@ public class Tests
     public void Scan_Should_Check_ItemPrice()
     {
         Mock<IDictionary<string, int>> itemPrices = new Mock<IDictionary<string, int>>();
-        var service = new Checkout.Core.Checkout( itemPrices.Object, new Dictionary<string, IPricingStrategy>() );
+        var service = new Checkout.Core.Checkout( itemPrices.Object, new Dictionary<string, IPricingStrategy>(), new ItemPriceStrategy() );
         service.Scan( "A" );
         itemPrices.Verify(x => x.ContainsKey( "A" ), Times.Once);
     }
@@ -46,6 +48,16 @@ public class Tests
     public void Scan_Should_Return_False_WhenItemPriceMissing()
     {
         _service.Scan( "!!!!!!!!!!!!!!!" ).Should().BeFalse();
+    }
+
+    [Test]
+    public void Should_Use_Default_PricingStrategy()
+    {
+        var defaultPricingStrategy = new Mock<IPricingStrategy>();
+        var service = new Checkout.Core.Checkout( _itemPrices, new Dictionary<string, IPricingStrategy>(), defaultPricingStrategy.Object );
+        service.Scan( "A" );
+        service.GetTotalPrice();
+        defaultPricingStrategy.Verify( x => x.GetTotalPrice( It.IsAny<IGrouping<string, Item>>() ), Times.Once );
     }
 
     private static Dictionary<string, int> SetupItemPrices()

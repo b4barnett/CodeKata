@@ -16,12 +16,15 @@ public class Checkout : ICheckout
 
     private readonly IDictionary<string, int> _itemPrices;
     private readonly Dictionary<string, IPricingStrategy> _itemPricingStrategy;
+    private readonly IPricingStrategy _defaultStrategy;
 
     public Checkout( IDictionary<string, int> itemPrices, 
-                        Dictionary<string, IPricingStrategy> itemPricingStrategy )
+                        Dictionary<string, IPricingStrategy> itemPricingStrategy,
+                        IPricingStrategy defaultStrategy)
     {
         _itemPrices = itemPrices;
         _itemPricingStrategy = itemPricingStrategy;
+        _defaultStrategy = defaultStrategy;
     }
 
     public int GetTotalPrice()
@@ -48,6 +51,6 @@ public class Checkout : ICheckout
         {
             return _itemPricingStrategy[item];
         }
-        return new ItemPriceStrategy();
+        return _defaultStrategy;
     }
 }
