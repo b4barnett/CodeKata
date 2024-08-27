@@ -1,4 +1,5 @@
 using Checkout.Core;
+using Checkout.Core.PricingStrategy;
 using Checkout.Entities;
 using FluentAssertions;
 using Moq;
@@ -9,12 +10,14 @@ public class Tests
 {
     private ICheckout _service;
     private Dictionary<string, int> _itemPrices;
+    private Dictionary<string, IPricingStrategy> _pricingStrategies;
 
     [SetUp]
     public void Setup()
     {
         _itemPrices = SetupItemPrices();
-        _service = new Checkout.Core.Checkout(_itemPrices);
+        _pricingStrategies = new Dictionary<string, IPricingStrategy>();
+        _service = new Checkout.Core.Checkout(_itemPrices, _pricingStrategies);
     }
 
     [TestCase(new string[0], 0, Description = "Empty cart should be zero")]
@@ -34,7 +37,7 @@ public class Tests
     public void Scan_Should_Check_ItemPrice()
     {
         Mock<IDictionary<string, int>> itemPrices = new Mock<IDictionary<string, int>>();
-        var service = new Checkout.Core.Checkout( itemPrices.Object );
+        var service = new Checkout.Core.Checkout( itemPrices.Object, new Dictionary<string, IPricingStrategy>() );
         service.Scan( "A" );
         itemPrices.Verify(x => x.ContainsKey( "A" ), Times.Once);
     }
@@ -51,5 +54,11 @@ public class Tests
         itemPrices.Add( "A", 1 );
         itemPrices.Add( "B", 2 );
         return itemPrices;
+    }
+
+    private static Dictionary<string, IPricingStrategy> SetupPricingStrategies()
+    {
+        var strats =  new Dictionary<string, IPricingStrategy>();
+        return strats;
     }
 }

@@ -1,4 +1,5 @@
-﻿using Checkout.Entities;
+﻿using Checkout.Core.PricingStrategy;
+using Checkout.Entities;
 
 namespace Checkout.Core;
 
@@ -11,18 +12,23 @@ public interface ICheckout
 public class Checkout : ICheckout
 {
     //Maybe an List<IGrouping> based on sku?
-    private List<Item> _basket = new List<Item>();
+    private readonly List<Item> _basket = new List<Item>();
 
-    private IDictionary<string, int> _itemPrices;
+    private readonly IDictionary<string, int> _itemPrices;
+    private readonly Dictionary<string, IPricingStrategy> _itemPricingStrategy;
 
-    public Checkout( IDictionary<string, int> itemPrices )
+    public Checkout( IDictionary<string, int> itemPrices, 
+                        Dictionary<string, IPricingStrategy> itemPricingStrategy )
     {
         _itemPrices = itemPrices;
+        _itemPricingStrategy = itemPricingStrategy;
     }
 
     public int GetTotalPrice()
     {
-        return _basket.Select(x => x.Cost).Sum();
+        return _basket.GroupBy( x => x.Sku )
+                        .Select( x => GetPricingStrategy( x.Key )
+                        .GetTotalPrice( x ) ).Sum();
     }
 
     public bool Scan( string item )
@@ -31,8 +37,17 @@ public class Checkout : ICheckout
         {
             return false;
         }
-        _basket.Add(new Item(item, _itemPrices[item]));
+        _basket.Add(new Item(item, _itemPrices[item] ) );
 
         return true;
+    }
+
+    private IPricingStrategy GetPricingStrategy( string item )
+    {
+        if ( _itemPricingStrategy.ContainsKey( item ) )
+        {
+            return _itemPricingStrategy[item];
+        }
+        return new ItemPriceStrategy();
     }
 }
