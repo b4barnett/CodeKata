@@ -4,7 +4,7 @@ namespace Checkout.Core;
 
 public interface ICheckout
 {
-    void Scan( string item );
+    bool Scan( string item );
     int GetTotalPrice();
 }
 
@@ -22,11 +22,17 @@ public class Checkout : ICheckout
 
     public int GetTotalPrice()
     {
-        throw new NotImplementedException();
+        return _basket.Select(x => x.Cost).Sum();
     }
 
-    public void Scan( string item )
+    public bool Scan( string item )
     {
+        if ( _itemPrices.ContainsKey( item ) == false )
+        {
+            return false;
+        }
         _basket.Add(new Item(item, _itemPrices[item]));
+
+        return true;
     }
 }
