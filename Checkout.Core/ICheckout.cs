@@ -11,9 +11,7 @@ public interface ICheckout
 
 public class Checkout : ICheckout
 {
-    //Maybe an List<IGrouping> based on sku?
     private readonly List<Item> _basket = new List<Item>();
-
     private readonly IDictionary<string, int> _itemPrices;
     private readonly Dictionary<string, IPricingStrategy> _itemPricingStrategy;
     private readonly IPricingStrategy _defaultStrategy;
