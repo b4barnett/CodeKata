@@ -26,8 +26,8 @@ internal class ItemPriceStrategyTests
         List<Item> items = new List<Item>()
         {
             new Item("A", 200),
-            new Item("B", 300),
-            new Item("C", 500)
+            new Item("A", 300),
+            new Item("A", 500)
         };
         _strategy.GetTotalPrice( items.GroupBy( x => x.Sku ).Single() ).Should().Be( 1000 );
     }
