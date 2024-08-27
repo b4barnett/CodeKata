@@ -16,7 +16,7 @@ public class Tests
     public void Setup()
     {
         _itemPrices = SetupItemPrices();
-        _pricingStrategies = new Dictionary<string, IPricingStrategy>();
+        _pricingStrategies = SetupPricingStrategies();
         _service = new Checkout.Core.Checkout(_itemPrices, _pricingStrategies, new ItemPriceStrategy());
     }
 
@@ -68,7 +68,7 @@ public class Tests
     [TestCase(new[] { "D", "D", "D" }, 20, Description = "Buy 3 for 20")]
     [TestCase(new[] { "D", "D" }, 16, Description = "Buy 3 for 20, but too few items")]
     [TestCase(new[] { "D", "C", "D", "C", "D" }, 24, Description = "Buy 3 for 20 out of order, BOGOF out of order")]
-    [TestCase(new[] { "A", "D", "A", "C", "B", "D", "B", "C", "D", "B" }, 24, Description = "Buy 3 for 20 out of order, BOGOF out of order, some items without pricing strats")]
+    [TestCase(new[] { "A", "D", "A", "C", "B", "D", "B", "C", "D", "B" }, 32, Description = "Buy 3 for 20 out of order, BOGOF out of order, some items without pricing strats")]
     public void Products_With_PricingRules(string[] products, int expectedPrice)
     {
         foreach ( var product in products )
@@ -91,6 +91,8 @@ public class Tests
     private static Dictionary<string, IPricingStrategy> SetupPricingStrategies()
     {
         var strats =  new Dictionary<string, IPricingStrategy>();
+        strats.Add( "C", new BuyXForYPricingStrategy( 2, 4 ) );
+        strats.Add( "D", new BuyXForYPricingStrategy( 3, 20 ) );
         return strats;
     }
 }
