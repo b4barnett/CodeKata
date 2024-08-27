@@ -60,11 +60,31 @@ public class Tests
         defaultPricingStrategy.Verify( x => x.GetTotalPrice( It.IsAny<IGrouping<string, Item>>() ), Times.Once );
     }
 
+    //should this be combined with the above one?
+    [TestCase(new[] { "C" }, 4, Description = "Single item of BOGOF")]
+    [TestCase(new[] { "C", "C" }, 4, Description = "BOGOF")]
+    [TestCase(new[] { "A", "C", "B", "C" }, 7, Description = "Out of order BOGOF with other items")]
+    [TestCase(new[] { "C", "C", "C" }, 8, Description = "BOGOF with extra item not part of deal, terrible decision making really")]
+    [TestCase(new[] { "D", "D", "D" }, 20, Description = "Buy 3 for 20")]
+    [TestCase(new[] { "D", "D" }, 16, Description = "Buy 3 for 20, but too few items")]
+    [TestCase(new[] { "D", "C", "D", "C", "D" }, 24, Description = "Buy 3 for 20 out of order, BOGOF out of order")]
+    [TestCase(new[] { "A", "D", "A", "C", "B", "D", "B", "C", "D", "B" }, 24, Description = "Buy 3 for 20 out of order, BOGOF out of order, some items without pricing strats")]
+    public void Products_With_PricingRules(string[] products, int expectedPrice)
+    {
+        foreach ( var product in products )
+        {
+            _service.Scan( product );
+        }
+        _service.GetTotalPrice().Should().Be( expectedPrice );
+    }
+
     private static Dictionary<string, int> SetupItemPrices()
     {
         var itemPrices = new Dictionary<string, int>();
         itemPrices.Add( "A", 1 );
         itemPrices.Add( "B", 2 );
+        itemPrices.Add( "C", 4 );
+        itemPrices.Add( "D", 8 );
         return itemPrices;
     }
 
